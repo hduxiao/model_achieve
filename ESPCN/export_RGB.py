@@ -7,11 +7,11 @@ import torch.onnx
 
 from model_RGB_for_export import ESPCN
 
-torch_model = ESPCN(upscale_factor=4)
+torch_model = ESPCN(upscale_factor=3)
 
 batch_size = 1    # just a random number
 
-model_path = './assets/models/x4_BGR_best.pth'
+model_path = './assets/models/x3_best.pth'
 
 # Initialize model with the pretrained weights
 map_location = lambda storage, loc: storage
@@ -30,7 +30,7 @@ torch_out = torch_model(x)
 # Export the model
 torch.onnx.export(torch_model,               # model being run
                   x,                         # model input (or a tuple for multiple inputs)
-                  "espcn.onnx",   # where to save the model (can be a file or file-like object)
+                  "espcn_x3.onnx",   # where to save the model (can be a file or file-like object)
                   export_params=True,        # store the trained parameter weights inside the model file
                   opset_version=14,          # the ONNX version to export the model to
                   do_constant_folding=True,  # whether to execute constant folding for optimization
@@ -40,10 +40,10 @@ torch.onnx.export(torch_model,               # model being run
                                 'output' : [2, 3]})
 
 
-onnx_model = onnx.load("espcn.onnx")
+onnx_model = onnx.load("espcn_x3.onnx")
 onnx.checker.check_model(onnx_model)
 
-ort_session = onnxruntime.InferenceSession("espcn.onnx")
+ort_session = onnxruntime.InferenceSession("espcn_x3.onnx")
 
 def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()

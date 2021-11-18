@@ -54,7 +54,7 @@ if __name__ == '__main__':
     train_set = './dataset/train'
     valid_set = './dataset/val'
     output_path = './assets/models'
-    upscale_factor = 4
+    upscale_factor = 2
     learning_rate = 1e-3
     batch_size = 64
     epochs = 100
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         psnr, valid_loss = evaluate(model, valid_loader, device, criterion)
 
         # save weight
-        torch.save(model.state_dict(), os.path.join(output_path, '{:.2f}_epoch{}.pth'.format(psnr.avg, epoch)))
+        torch.save(model.state_dict(), os.path.join(output_path, '{:.2f}_x{}_epoch{}.pth'.format(psnr.avg, upscale_factor, epoch)))
         # record
         if psnr.avg > best_psnr:
             best_epoch = epoch
@@ -109,6 +109,6 @@ if __name__ == '__main__':
 
         print(f'\nPSNR: {psnr.avg:.2f}, train loss: {train_loss.avg:.5f}, eval loss: {valid_loss.avg:.5f}\n')
 
-    torch.save(best_weight, os.path.join(output_path, 'best.pth'))
+    torch.save(best_weight, os.path.join(output_path, 'x{}_best.pth'.format(upscale_factor)))
     print(f'Best Epoch: {best_epoch}, psnr: {best_psnr:.2f}')
     
