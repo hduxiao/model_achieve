@@ -7,11 +7,11 @@ import torch.onnx
 
 from model_RGB_for_export import ESPCN
 
-torch_model = ESPCN(upscale_factor=3)
+torch_model = ESPCN(upscale_factor=2)
 
 batch_size = 1    # just a random number
 
-model_path = './assets/models/x3_best.pth'
+model_path = './assets/models/x2_best.pth'
 
 # Initialize model with the pretrained weights
 map_location = lambda storage, loc: storage
@@ -23,27 +23,27 @@ torch_model.load_state_dict(torch.load(model_path, map_location=map_location))
 torch_model.eval()
 
 # Input to the model
-x = torch.randn(1, 3, 234, 234, requires_grad=True)
+x = torch.randn(1, 234, 234, 3, requires_grad=True)
 torch_out = torch_model(x)
 
 # Export the model
 # Export the model
 torch.onnx.export(torch_model,               # model being run
                   x,                         # model input (or a tuple for multiple inputs)
-                  "espcn_x3.onnx",   # where to save the model (can be a file or file-like object)
+                  "espcn_x2.onnx",   # where to save the model (can be a file or file-like object)
                   export_params=True,        # store the trained parameter weights inside the model file
                   opset_version=14,          # the ONNX version to export the model to
                   do_constant_folding=True,  # whether to execute constant folding for optimization
                   input_names = ['input'],   # the model's input names
                   output_names = ['output'], # the model's output names
-                  dynamic_axes={'input' : [2, 3],    # variable length axes
-                                'output' : [2, 3]})
+                  dynamic_axes={'input' : [1, 2],    # variable length axes
+                                'output' : [1, 2]})
 
 
-onnx_model = onnx.load("espcn_x3.onnx")
+onnx_model = onnx.load("espcn_x2.onnx")
 onnx.checker.check_model(onnx_model)
 
-ort_session = onnxruntime.InferenceSession("espcn_x3.onnx")
+ort_session = onnxruntime.InferenceSession("espcn_x2.onnx")
 
 def to_numpy(tensor):
     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()

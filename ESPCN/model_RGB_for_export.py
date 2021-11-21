@@ -15,6 +15,7 @@ class ESPCN(nn.Module):
                                              nn.PixelShuffle(upscale_factor))
 
     def forward(self, x):
+        x = x.permute(0, 3, 1, 2)
         x = self.feature_map(x)
         x = self.sub_pixel_layer(x)
         x = x.permute(0, 2, 3, 1) # this line only for export
